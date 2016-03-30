@@ -20,7 +20,7 @@
             <h3>Usuarios registrados</h3>
             <ul>
                 <?php
-                $link = mysql_connect('localhost:3306', 'root', '12345') or die('No se puede conectar con el servidor');
+                $link = mysql_connect('localhost:3306', 'juanjo', 'alonso') or die('No se puede conectar con el servidor');
                 if (!$link) {
                     die('Could not connect to MySQL: ' . mysql_error());
                 }

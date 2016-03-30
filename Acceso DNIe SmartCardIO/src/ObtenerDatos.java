@@ -118,6 +118,181 @@ public class ObtenerDatos {
         }
         return completName;
     }
+    
+    
+    public String LeerNombre() {
+        String nombre = null;
+        try {
+            Card c = ConexionTarjeta();
+            if (c == null) {
+                throw new Exception("No se ha encontrado ninguna tarjeta");
+            }
+            byte[] atr = c.getATR().getBytes();
+            CardChannel ch = c.getBasicChannel();
+
+            if (esDNIe(atr)) {
+                nombre = leerDeCertificado1(ch);
+            }
+            c.disconnect(false);
+
+        } catch (Exception ex) {
+            Logger.getLogger(ObtenerDatos.class.getName()).log(Level.SEVERE, null, ex);
+            return null;
+        }
+        return nombre;
+    }
+
+  
+
+    public String leerDeCertificado1(CardChannel ch) throws CardException {
+        int offset = 0;
+        String completName = null;
+
+        byte[] command = new byte[]{(byte) 0x00, (byte) 0xa4, (byte) 0x04, (byte) 0x00, (byte) 0x0b, (byte) 0x4D, (byte) 0x61, (byte) 0x73, (byte) 0x74, (byte) 0x65, (byte) 0x72, (byte) 0x2E, (byte) 0x46, (byte) 0x69, (byte) 0x6C, (byte) 0x65};
+        ResponseAPDU r = ch.transmit(new CommandAPDU(command));
+        if ((byte) r.getSW() != (byte) 0x9000) {
+            System.out.println("SW incorrecto");
+            return null;
+        }
+
+        //Seleccionamos el directorio PKCS#15 5015
+        command = new byte[]{(byte) 0x00, (byte) 0xA4, (byte) 0x00, (byte) 0x00, (byte) 0x02, (byte) 0x50, (byte) 0x15};
+        r = ch.transmit(new CommandAPDU(command));
+
+        if ((byte) r.getSW() != (byte) 0x9000) {
+            System.out.println("SW incorrecto");
+            return null;
+        }
+
+        //Seleccionamos el Certificate Directory File (CDF) del DNIe 6004
+        command = new byte[]{(byte) 0x00, (byte) 0xA4, (byte) 0x00, (byte) 0x00, (byte) 0x02, (byte) 0x60, (byte) 0x04};
+        r = ch.transmit(new CommandAPDU(command));
+
+        if ((byte) r.getSW() != (byte) 0x9000) {
+            System.out.println("SW incorrecto");
+            return null;
+        }
+
+        //Leemos FF bytes del archivo
+        command = new byte[]{(byte) 0x00, (byte) 0xB0, (byte) 0x00, (byte) 0x00, (byte) 0xFF};
+        r = ch.transmit(new CommandAPDU(command));
+
+        if ((byte) r.getSW() == (byte) 0x9000) {
+            byte[] datos = r.getData();
+
+            if (datos[4] == 0x30) {
+                offset = 4;
+                offset += datos[offset + 1] + 2; //Obviamos la seccion del Label
+            }
+
+            if (datos[offset] == 0x30) {
+                offset += datos[offset + 1] + 2; //Obviamos la seccion de la informacion sobre la fecha de expedición etc
+            }
+
+            if ((byte) datos[offset] == (byte) 0xA1) {
+                //El certificado empieza aquí
+                byte[] r3 = new byte[10];
+
+                
+                
+                
+                //Nos posicionamos en el byte donde empieza el NIF y leemos sus 9 bytes
+                for (int z = 0; z < 10; z++) {
+                    r3[z] = datos[180 + z];
+                }
+                completName = new String(r3);
+            }
+        }
+        return completName;
+    }
+    
+    
+    public String LeerApellido() {
+        String apellido = null;
+        try {
+            Card c = ConexionTarjeta();
+            if (c == null) {
+                throw new Exception("No se ha encontrado ninguna tarjeta");
+            }
+            byte[] atr = c.getATR().getBytes();
+            CardChannel ch = c.getBasicChannel();
+
+            if (esDNIe(atr)) {
+                apellido = leerDeCertificado2(ch);
+            }
+            c.disconnect(false);
+
+        } catch (Exception ex) {
+            Logger.getLogger(ObtenerDatos.class.getName()).log(Level.SEVERE, null, ex);
+            return null;
+        }
+        return apellido;
+    }
+
+  
+
+    public String leerDeCertificado2(CardChannel ch) throws CardException {
+        int offset = 0;
+        String completName = null;
+
+        byte[] command = new byte[]{(byte) 0x00, (byte) 0xa4, (byte) 0x04, (byte) 0x00, (byte) 0x0b, (byte) 0x4D, (byte) 0x61, (byte) 0x73, (byte) 0x74, (byte) 0x65, (byte) 0x72, (byte) 0x2E, (byte) 0x46, (byte) 0x69, (byte) 0x6C, (byte) 0x65};
+        ResponseAPDU r = ch.transmit(new CommandAPDU(command));
+        if ((byte) r.getSW() != (byte) 0x9000) {
+            System.out.println("SW incorrecto");
+            return null;
+        }
+
+        //Seleccionamos el directorio PKCS#15 5015
+        command = new byte[]{(byte) 0x00, (byte) 0xA4, (byte) 0x00, (byte) 0x00, (byte) 0x02, (byte) 0x50, (byte) 0x15};
+        r = ch.transmit(new CommandAPDU(command));
+
+        if ((byte) r.getSW() != (byte) 0x9000) {
+            System.out.println("SW incorrecto");
+            return null;
+        }
+
+        //Seleccionamos el Certificate Directory File (CDF) del DNIe 6004
+        command = new byte[]{(byte) 0x00, (byte) 0xA4, (byte) 0x00, (byte) 0x00, (byte) 0x02, (byte) 0x60, (byte) 0x04};
+        r = ch.transmit(new CommandAPDU(command));
+
+        if ((byte) r.getSW() != (byte) 0x9000) {
+            System.out.println("SW incorrecto");
+            return null;
+        }
+
+        //Leemos FF bytes del archivo
+        command = new byte[]{(byte) 0x00, (byte) 0xB0, (byte) 0x00, (byte) 0x00, (byte) 0xFF};
+        r = ch.transmit(new CommandAPDU(command));
+
+        if ((byte) r.getSW() == (byte) 0x9000) {
+            byte[] datos = r.getData();
+
+            if (datos[4] == 0x30) {
+                offset = 4;
+                offset += datos[offset + 1] + 2; //Obviamos la seccion del Label
+            }
+
+            if (datos[offset] == 0x30) {
+                offset += datos[offset + 1] + 2; //Obviamos la seccion de la informacion sobre la fecha de expedición etc
+            }
+
+            if ((byte) datos[offset] == (byte) 0xA1) {
+                //El certificado empieza aquí
+                byte[] r3 = new byte[13];
+
+                
+                
+                
+                //Nos posicionamos en el byte donde empieza el NIF y leemos sus 9 bytes
+                for (int z = 0; z < 13; z++) {
+                    r3[z] = datos[166 + z];
+                }
+                completName = new String(r3);
+            }
+        }
+        return completName;
+    }
+    
 
    
 
