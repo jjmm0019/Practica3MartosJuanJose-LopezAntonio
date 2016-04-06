@@ -6,12 +6,16 @@
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.net.URL;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.smartcardio.*;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
+import javax.xml.bind.DatatypeConverter;
 
 /**
  * La clase ObtenerDatos implementa cuatro métodos públicos que permiten obtener
@@ -20,6 +24,7 @@ import java.security.cert.CertificateFactory;
  * @author tbc
  */
 public class ObtenerDatos {
+    Scanner scanf=new Scanner(System.in);
 
     private static final byte[] dnie_v_1_0_Atr = {
         (byte) 0x3B, (byte) 0x7F, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x6A, (byte) 0x44,
@@ -32,7 +37,33 @@ public class ObtenerDatos {
 
     public ObtenerDatos() {
     }
-
+    
+    static String Sha1(String input) throws NoSuchAlgorithmException {
+        MessageDigest mDigest = MessageDigest.getInstance("SHA1");
+        byte[] result = mDigest.digest(input.getBytes());
+        StringBuffer sb = new StringBuffer();
+        for (int i = 0; i < result.length; i++) {
+            sb.append(Integer.toString((result[i] & 0xff) + 0x100, 16).substring(1));
+        }
+         
+        return sb.toString();
+    }
+     
+    public String Clave(){
+        String x;
+        System.out.println("Introduce la clave: ");
+        x=scanf.nextLine();
+        
+        return x;
+    }
+   /* 
+    public void ConexionHttp(){
+        String uri="localhost:8082/";
+        URL url=new URL(uri);
+        
+        
+    }
+*/
     public String LeerNIF() {
         String nif = null;
         try {
