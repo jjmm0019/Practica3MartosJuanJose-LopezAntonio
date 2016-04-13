@@ -36,9 +36,12 @@
                 
             } else {
                 $user = filter_input(INPUT_GET, 'user', FILTER_SANITIZE_STRING);
+                $user=base64_decode($user);
                 if ($user != NULL) {
                     $dni = filter_input(INPUT_GET, 'dni', FILTER_SANITIZE_STRING);
+                    $dni=base64_decode($dni); 
                     $password = filter_input(INPUT_GET, 'password', FILTER_SANITIZE_STRING);
+                    $password=base64_decode($password);
                     ?>
                     <h3>Autenticando mediante GET</h3>
                     <?php
@@ -59,7 +62,7 @@
                 $resultado = mysql_query($sql);
                 while ($row = mysql_fetch_assoc($resultado)) {
 
-                    if($row["user"]==$user && $row["dni"]==$dni && $row["password"]==$password)// . " " . $row["dni"] . "</li>";
+                    if($row["user"]==$user && sha1($row["dni"])==$dni && sha1($row["password"])==$password)// . " " . $row["dni"] . "</li>";
                     {
                         
                         $autenticado=true;
