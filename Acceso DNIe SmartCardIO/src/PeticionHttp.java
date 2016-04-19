@@ -16,6 +16,7 @@ public class PeticionHttp {
 	  BufferedReader rd = new BufferedReader(new InputStreamReader(conn.getInputStream()));
           
           while((line=rd.readLine())!=null){
+              //Para ver si la peticion se realiza correctamente o no
               System.out.println(line);
               if(line.endsWith("</h4>")){
               
